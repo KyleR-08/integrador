@@ -1,0 +1,7 @@
+**/auth-service/.env
+**/*.db
+**/mail-service/credentials.json
+**/mail-service/token/*
+**/mail-service/data/accounts.json
+**/auth-service/__pycache__/
+**/auth-service/venv/
