@@ -27,8 +27,41 @@ proyecto-integrador/
 ## Requisitos previos
 
 - [Docker](https://www.docker.com/) y Docker Compose
-- Archivo `auth-service/.env` con las variables de entorno requeridas (incluyendo `PEPPER_SECRET`)
+- Archivo `auth-service/.env` con las variables de entorno requeridas
 - Archivo `mail-service/credentials.json` con las credenciales OAuth de Google Cloud para Gmail API
+
+## Setup
+
+Antes de levantar el proyecto, configura los archivos sensibles a partir de las plantillas incluidas:
+
+### 1. Configurar `auth-service/.env`
+
+Copia el ejemplo y rellena el valor de `AES_KEY`:
+
+```bash
+cp auth-service/.env.example auth-service/.env
+```
+
+Edita `auth-service/.env` y asigna a `AES_KEY` cualquier cadena de **32 caracteres** (se usa para el cifrado AES de credenciales).
+
+### 2. Configurar `mail-service/credentials.json`
+
+Copia el ejemplo y rellena con credenciales reales obtenidas desde [Google Cloud Console](https://console.cloud.google.com/):
+
+```bash
+cp mail-service/credentials.json.example mail-service/credentials.json
+```
+
+En Google Cloud Console:
+
+1. Crea (o selecciona) un proyecto.
+2. Habilita la **Gmail API**.
+3. En **APIs & Services → Credentials**, crea unas credenciales de tipo **OAuth client ID** para una app de escritorio.
+4. Descarga el JSON y copia los valores de `client_id`, `project_id` y `client_secret` a `mail-service/credentials.json`.
+
+### 3. No commitear archivos sensibles
+
+> **IMPORTANTE:** Nunca subas `auth-service/.env` ni `mail-service/credentials.json` al repositorio. Ya están ignorados por `.gitignore`; solo se versionan los archivos `*.example`.
 
 ## Levantar el proyecto
 
