@@ -1,9 +1,7 @@
 # Proyecto Integrador - Tercer Semestre UIDE
 
-Proyecto integrador correspondiente al tercer semestre de la **Universidad Internacional del Ecuador (UIDE)**, que integra los conocimientos adquiridos en las siguientes materias:
+Proyecto integrador correspondiente al tercer semestre de la **Universidad Internacional del Ecuador (UIDE)**, que integra los conocimientos adquiridos de todas las materias.
 
-- **Fundamentos de la Seguridad** — Ing. Darío Cabezas
-- **Programación Orientada a Objetos** — Ing. Ivan Reyes
 
 ## Arquitectura
 
