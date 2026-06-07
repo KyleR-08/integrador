@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Manual — Distributed Mail System</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.7; }
+  .topbar { background: #0f766e; color: white; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+  .topbar a { color: #99f6e4; text-decoration: none; font-size: 0.9rem; }
+  .topbar h1 { font-size: 1.1rem; font-weight: 600; }
+  .content { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h2 { font-size: 1.4rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #2dd4bf; border-bottom: 1px solid #1e3a3a; padding-bottom: 0.5rem; }
+  h3 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem; }
+  p { margin-bottom: 1rem; color: #cbd5e1; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .card h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: #f1f5f9; }
+  .card p { margin-bottom: 0; font-size: 0.9rem; }
+  code { background: #0f172a; padding: 0.15rem 0.5rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #34d399; border: 1px solid #1e3a3a; }
+  pre { background: #020617; border: 1px solid #1e3a3a; border-radius: 8px; padding: 1.2rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; border: none; padding: 0; color: #34d399; font-size: 0.85rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; margin-right: 0.3rem; }
+  .tag-python { background: #1e3a5f; color: #60a5fa; }
+  .tag-go { background: #0c2a2a; color: #2dd4bf; }
+  .tag-docker { background: #1a1a3e; color: #818cf8; }
+  .tag-security { background: #2a1a1a; color: #f87171; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th { background: #1e293b; padding: 0.75rem 1rem; text-align: left; color: #94a3b8; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+  td { padding: 0.75rem 1rem; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
+  tr:last-child td { border-bottom: none; }
+  .method { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+  .get { background: #1e3a5f; color: #60a5fa; }
+  .post { background: #0c2a1a; color: #34d399; }
+  .highlight { background: #1e293b; border-left: 3px solid #2dd4bf; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html">← Back</a>
+  <h1>⚙️ Technical Manual — Distributed Mail System</h1>
+</div>
+<div class="content">
+  <p style="color:#64748b; margin-top:1rem;">Technical reference for the Distributed Mail System. Covers architecture, services, security implementation, deployment, and network infrastructure.</p>
+
+  <h2>System Overview</h2>
+  <p>The system follows a microservices architecture with two independently containerized services orchestrated via Docker Compose. Both services run on VLAN 10 of the organizational network infrastructure.</p>
+
+  <div class="card">
+    <h4>Auth Service <span class="tag tag-python">Python</span><span class="tag tag-docker">Docker</span><span class="tag tag-security">AES-CBC</span></h4>
+    <p>Authentication microservice built with FastAPI, SQLModel, and SQLite. Handles user registration and login with AES-CBC password encryption. Runs on port 8000.</p>
+  </div>
+  <div class="card">
+    <h4>Mail Service <span class="tag tag-go">Go</span><span class="tag tag-docker">Docker</span></h4>
+    <p>Email management service built with Go and Gin framework. Supports Gmail and Outlook via OAuth2 (Google API and Microsoft Graph). Serves a web interface on port 8080.</p>
+  </div>
+
+  <h2>Technology Stack</h2>
+  <table>
+    <tr><th>Component</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+    <tr><td>Auth Service</td><td>Python + FastAPI</td><td>3.11</td><td>REST API for authentication</td></tr>
+    <tr><td>ORM</td><td>SQLModel</td><td>latest</td><td>Database models and queries</td></tr>
+    <tr><td>Database</td><td>SQLite</td><td>3</td><td>User credential storage</td></tr>
+    <tr><td>Encryption</td><td>pycryptodome AES-CBC</td><td>latest</td><td>Password protection</td></tr>
+    <tr><td>Mail Service</td><td>Go + Gin</td><td>1.25</td><td>HTTP server and email management</td></tr>
+    <tr><td>Email APIs</td><td>Gmail API v1 + Microsoft Graph</td><td>v1</td><td>Email provider integration</td></tr>
+    <tr><td>Auth Protocol</td><td>OAuth2</td><td>2.0</td><td>Email account authorization</td></tr>
+    <tr><td>Containerization</td><td>Docker + Docker Compose</td><td>4.75</td><td>Service orchestration</td></tr>
+  </table>
+
+  <h2>Security Implementation — AES-CBC</h2>
+  <p>The auth service implements AES (Advanced Encryption Standard) in CBC (Cipher Block Chaining) mode for password protection. Passwords are never stored in plain text.</p>
+
+  <h3>Encryption Flow</h3>
+  <div class="highlight">
+    1. User submits password → 2. Random 16-byte IV generated → 3. Password padded to AES block size (PKCS7) → 4. AES-CBC encryption using 32-byte key from environment → 5. Result stored as <code>iv_b64:ciphertext_b64</code>
+  </div>
+
+  <h3>Key Components</h3>
+  <div class="card">
+    <h4>Initialization Vector (IV)</h4>
+    <p>A cryptographically random 16-byte value generated per encryption operation using <code>get_random_bytes(16)</code>. Ensures identical passwords produce different ciphertexts in the database, providing protection equivalent to salting.</p>
+  </div>
+  <div class="card">
+    <h4>AES Key (Environment Variable)</h4>
+    <p>A 32-byte secret key stored in <code>.env</code> as <code>AES_KEY</code>, never committed to the repository. Functions as a pepper — without it, database contents cannot be decrypted even if stolen.</p>
+  </div>
+  <div class="card">
+    <h4>CBC Mode</h4>
+    <p>Each cipher block is XOR'd with the previous ciphertext block before encryption. The IV initializes the first block. This prevents pattern analysis attacks that would be possible with ECB mode.</p>
+  </div>
+
+  <h3>Storage Format</h3>
+  <pre><code>database field: encrypted_password
+format: {IV_base64}:{ciphertext_base64}
+example: aBcDeFgH...==:XyZ123...==</code></pre>
+
+  <h2>Auth Service — API Reference</h2>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Request Body</th><th>Response</th></tr>
+    <tr>
+      <td><span class="method get">GET</span></td>
+      <td><code>/</code></td>
+      <td>Health check</td>
+      <td>—</td>
+      <td>Service info JSON</td>
+    </tr>
+    <tr>
+      <td><span class="method post">POST</span></td>
+      <td><code>/register</code></td>
+      <td>Register new user</td>
+      <td><code>{"username": "", "password": ""}</code></td>
+      <td>200: user_id, username / 400: duplicate</td>
+    </tr>
+    <tr>
+      <td><span class="method post">POST</span></td>
+      <td><code>/login</code></td>
+      <td>Authenticate user</td>
+      <td><code>{"username": "", "password": ""}</code></td>
+      <td>200: success / 401: invalid credentials</td>
+    </tr>
+  </table>
+
+  <h2>Mail Service — API Reference</h2>
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/health</code></td><td>Service health check</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/accounts</code></td><td>List registered accounts</td></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/accounts</code></td><td>Add new account</td></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/accounts/:email/activate</code></td><td>Set active account</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/auth/google/start</code></td><td>Start Google OAuth2 flow</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/auth/google/callback</code></td><td>Handle Google OAuth2 callback</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/auth/microsoft/start</code></td><td>Start Microsoft OAuth2 flow</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/auth/microsoft/callback</code></td><td>Handle Microsoft OAuth2 callback</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/inbox</code></td><td>Get inbox emails</td></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/send</code></td><td>Send email</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/sent</code></td><td>Get sent emails</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/search?q=query</code></td><td>Search emails</td></tr>
+  </table>
+
+  <h2>Docker Architecture</h2>
+  <pre><code>proyecto-integrador/
+├── docker-compose.yml       # Orchestrates both services
+├── auth-service/
+│   ├── Dockerfile           # FROM python:3.11-slim
+│   ├── main.py              # FastAPI app + endpoints
+│   ├── models.py            # SQLModel User model
+│   ├── auth.py              # AES-CBC encryption logic
+│   └── requirements.txt
+└── mail-service/
+    ├── Dockerfile           # FROM golang:1.25-alpine (multi-stage)
+    ├── main.go              # Gin HTTP server + all endpoints
+    ├── accounts/            # Account management
+    ├── auth/                # OAuth2 Google + Microsoft
+    ├── providers/           # Gmail + Outlook + Institutional
+    └── static/index.html    # Web interface</code></pre>
+
+  <h3>Docker Compose Configuration</h3>
+  <pre><code>services:
+  auth-service:
+    build: ./auth-service
+    ports: ["8000:8000"]
+    env_file: ./auth-service/.env
+
+  mail-service:
+    build: ./mail-service
+    ports: ["8080:8080"]
+    volumes:
+      - ./mail-service/data:/app/data
+      - ./mail-service/token:/app/token
+    environment:
+      - GIN_MODE=release</code></pre>
+
+  <h2>Network Infrastructure</h2>
+  <table>
+    <tr><th>VLAN</th><th>Name</th><th>Services</th></tr>
+    <tr><td>VLAN 10</td><td>Microservices</td><td>Auth Service (Python) + Mail Service (Go)</td></tr>
+    <tr><td>VLAN 20</td><td>Streaming</td><td>Media services</td></tr>
+    <tr><td>VLAN 30</td><td>Mail</td><td>Email infrastructure</td></tr>
+    <tr><td>VLAN 40</td><td>Interactive Apps</td><td>Client interfaces</td></tr>
+  </table>
+
+  <div class="card">
+    <h4>Network Components</h4>
+    <p>Router (Raspberry Pi / OpenWRT) configured as Router-on-a-Stick · 4 Layer-2 switches · Trunk links and EtherChannel · Inter-VLAN routing · NAT toward Internet · Firewall rules · Controlled communication between services</p>
+  </div>
+
+  <h2>Running the System</h2>
+  <pre><code># Clone the repository
+git clone https://github.com/KyleR-08/proyecto-integrador
+
+# Start both services
+cd proyecto-integrador
+docker compose up --build
+
+# Auth Service available at:  http://localhost:8000/docs
+# Mail Service available at:  http://localhost:8080</code></pre>
+
+  <h2>Dependencies</h2>
+  <h3>Auth Service (Python)</h3>
+  <pre><code>fastapi · uvicorn · sqlmodel · pycryptodome · python-dotenv</code></pre>
+  <h3>Mail Service (Go)</h3>
+  <pre><code>github.com/gin-gonic/gin · golang.org/x/oauth2 · google.golang.org/api</code></pre>
+
+</div>
+</body>
+</html>

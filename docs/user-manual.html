@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Manual — Distributed Mail System</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.7; }
+  .topbar { background: #2563eb; color: white; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+  .topbar a { color: #93c5fd; text-decoration: none; font-size: 0.9rem; }
+  .topbar h1 { font-size: 1.1rem; font-weight: 600; }
+  .content { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h2 { font-size: 1.5rem; font-weight: 700; margin: 2.5rem 0 1rem; color: #1e40af; border-bottom: 2px solid #dbeafe; padding-bottom: 0.5rem; }
+  h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: #1e293b; }
+  p { margin-bottom: 1rem; color: #334155; }
+  .step { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .step-number { background: #2563eb; color: white; width: 2rem; height: 2rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; margin-right: 0.75rem; }
+  .step-title { font-weight: 600; font-size: 1rem; }
+  .screenshot { width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; margin: 1rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .tip { background: #eff6ff; border-left: 4px solid #2563eb; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.9rem; color: #1e40af; }
+  .warning { background: #fef9c3; border-left: 4px solid #ca8a04; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.9rem; color: #854d0e; }
+  .badge-service { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .auth { background: #dbeafe; color: #1e40af; }
+  .mail { background: #ccfbf1; color: #0f766e; }
+  code { background: #f1f5f9; padding: 0.1rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.9rem; color: #be185d; }
+  .back { display: inline-block; margin-bottom: 1rem; color: #2563eb; text-decoration: none; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html">← Back</a>
+  <h1>📖 User Manual — Distributed Mail System</h1>
+</div>
+<div class="content">
+  <p style="color:#64748b; margin-top:1rem;">This manual explains how to use the Distributed Mail System developed as part of the 3rd Semester Integrator Project at UIDE. No technical knowledge required.</p>
+
+  <h2>What is this system?</h2>
+  <p>The Distributed Mail System is a web application that allows users to securely register and log in, and then manage their email accounts — including Gmail and Outlook — from a single interface. The system is made up of two services that work together:</p>
+  <div class="step">
+    <span class="badge-service auth">Auth Service — Port 8000</span>
+    <p>Handles user registration and login. Passwords are protected using AES-CBC encryption before being stored.</p>
+  </div>
+  <div class="step">
+    <span class="badge-service mail">Mail Service — Port 8080</span>
+    <p>Handles email management. Connect your Gmail or Outlook account, view your inbox, send emails, and search messages.</p>
+  </div>
+
+  <h2>Getting Started</h2>
+
+  <h3>Step 1 — Access the Authentication Service</h3>
+  <div class="step">
+    <span class="step-number">1</span><span class="step-title">Open your browser and go to <code>http://localhost:8000/docs</code></span>
+    <p style="margin-top:0.75rem;">You will see the API documentation with two available actions: <strong>/register</strong> and <strong>/login</strong>.</p>
+  </div>
+
+  <h3>Step 2 — Register a new user</h3>
+  <div class="step">
+    <span class="step-number">2</span><span class="step-title">Click on POST /register → Try it out</span>
+    <p style="margin-top:0.75rem;">Enter your desired username and password in JSON format:</p>
+    <code>{ "username": "yourname", "password": "yourpassword" }</code>
+    <p style="margin-top:0.75rem;">Click <strong>Execute</strong>. A successful response returns your new user ID.</p>
+  </div>
+  <div class="tip">Your password is never stored as plain text. The system encrypts it using AES-CBC before saving it to the database.</div>
+
+  <h3>Step 3 — Log in</h3>
+  <div class="step">
+    <span class="step-number">3</span><span class="step-title">Click on POST /login → Try it out</span>
+    <p style="margin-top:0.75rem;">Enter the same username and password you registered with. A successful response confirms your login.</p>
+  </div>
+
+  <h2>Using the Mail Manager</h2>
+
+  <h3>Step 4 — Open the Mail Manager</h3>
+  <div class="step">
+    <span class="step-number">4</span><span class="step-title">Go to <code>http://localhost:8080</code></span>
+    <p style="margin-top:0.75rem;">You will see the main interface showing your registered accounts, inbox, search bar, and email composer.</p>
+  </div>
+
+  <h3>Step 5 — Connect your email account</h3>
+  <div class="step">
+    <span class="step-number">5</span><span class="step-title">Click <strong>+ Agregar cuenta</strong> to add a new account</span>
+    <p style="margin-top:0.75rem;">Enter your email address and display name. Then click <strong>Conectar Gmail</strong> or <strong>Conectar Outlook / UIDE</strong> to authorize access via OAuth2. You will be redirected to Google or Microsoft to grant permission.</p>
+  </div>
+  <div class="tip">OAuth2 means the system never stores your Gmail or Outlook password. You authorize access directly through Google or Microsoft.</div>
+
+  <h3>Step 6 — View your inbox</h3>
+  <div class="step">
+    <span class="step-number">6</span><span class="step-title">Click <strong>Ver bandeja</strong> to load your inbox</span>
+    <p style="margin-top:0.75rem;">Your most recent emails appear with sender, subject, date, and a preview of the message body.</p>
+  </div>
+
+  <h3>Step 7 — Send an email</h3>
+  <div class="step">
+    <span class="step-number">7</span><span class="step-title">Scroll down to <strong>Enviar correo</strong></span>
+    <p style="margin-top:0.75rem;">Fill in the <strong>Para</strong> (recipient), <strong>Asunto</strong> (subject), and <strong>Mensaje</strong> (body) fields. Click <strong>Enviar</strong> to send.</p>
+  </div>
+
+  <h3>Step 8 — Search emails</h3>
+  <div class="step">
+    <span class="step-number">8</span><span class="step-title">Use the <strong>Buscar correos</strong> search bar</span>
+    <p style="margin-top:0.75rem;">Type any keyword and click <strong>Buscar</strong> to search through your emails.</p>
+  </div>
+
+  <div class="warning">Make sure both services are running via <code>docker compose up</code> before accessing the system.</div>
+
+  <h2>Switching between accounts</h2>
+  <p>If you have multiple accounts registered, click <strong>Activar</strong> next to the account you want to use. The active account is shown at the top and marked with a green badge.</p>
+
+</div>
+</body>
+</html>
