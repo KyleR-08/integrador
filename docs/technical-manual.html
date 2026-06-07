@@ -172,18 +172,53 @@ example: aBcDeFgH...==:XyZ123...==</code></pre>
       - GIN_MODE=release</code></pre>
 
   <h2>Network Infrastructure</h2>
+  <p>Both services run on <strong>VLAN 10 (Microservices)</strong> — subnet <code>192.168.0.128/27</code>, gateway <code>192.168.0.129</code>. Services are accessible at <code>http://192.168.0.130:8000</code> (auth) and <code>http://192.168.0.130:8080</code> (mail) from within the network.</p>
+
+  <h3>Router</h3>
+  <div class="card">
+    <h4>Raspberry Pi 3 Model B — OpenWrt 24.10.0</h4>
+    <p>Configured as Router-on-a-Stick with 802.1Q VLAN subinterfaces on eth0. WAN uplink via university WiFi (<code>phy0-sta0</code>, DHCP). LuCI web interface at <code>http://192.168.1.1</code>.</p>
+  </div>
+
+  <h3>VLSM IP Plan — 192.168.0.0/16</h3>
   <table>
-    <tr><th>VLAN</th><th>Name</th><th>Services</th></tr>
-    <tr><td>VLAN 10</td><td>Microservices</td><td>Auth Service (Python) + Mail Service (Go)</td></tr>
-    <tr><td>VLAN 20</td><td>Streaming</td><td>Media services</td></tr>
-    <tr><td>VLAN 30</td><td>Mail</td><td>Email infrastructure</td></tr>
-    <tr><td>VLAN 40</td><td>Interactive Apps</td><td>Client interfaces</td></tr>
+    <tr><th>VLAN</th><th>Name</th><th>Subnet</th><th>Gateway</th><th>Hosts</th></tr>
+    <tr><td>VLAN 10</td><td>Microservices</td><td><code>192.168.0.128/27</code></td><td><code>192.168.0.129</code></td><td>30</td></tr>
+    <tr><td>VLAN 20</td><td>Streaming</td><td><code>192.168.0.64/26</code></td><td><code>192.168.0.65</code></td><td>62</td></tr>
+    <tr><td>VLAN 30</td><td>Mail Server</td><td><code>192.168.0.0/26</code></td><td><code>192.168.0.1</code></td><td>62</td></tr>
+    <tr><td>VLAN 40</td><td>Counter Strike</td><td><code>192.168.0.160/27</code></td><td><code>192.168.0.161</code></td><td>30</td></tr>
+    <tr><td>VLAN 50</td><td>Users</td><td><code>192.168.0.192/27</code></td><td><code>192.168.0.193</code></td><td>30</td></tr>
   </table>
 
+  <h3>Raspberry Pi Subinterfaces</h3>
+  <table>
+    <tr><th>Interface</th><th>VLAN</th><th>IP Address</th><th>Description</th></tr>
+    <tr><td><code>eth0.10</code></td><td>VLAN 10</td><td><code>192.168.0.129/27</code></td><td>Microservices — Docker containers</td></tr>
+    <tr><td><code>eth0.20</code></td><td>VLAN 20</td><td><code>192.168.0.65/26</code></td><td>Streaming Server</td></tr>
+    <tr><td><code>eth0.30</code></td><td>VLAN 30</td><td><code>192.168.0.1/26</code></td><td>Mail Server</td></tr>
+    <tr><td><code>eth0.40</code></td><td>VLAN 40</td><td><code>192.168.0.161/27</code></td><td>Counter Strike Server</td></tr>
+    <tr><td><code>eth0.50</code></td><td>VLAN 50</td><td><code>192.168.0.193/27</code></td><td>User clients</td></tr>
+    <tr><td><code>phy0-sta0</code></td><td>WAN</td><td>DHCP</td><td>University WiFi uplink</td></tr>
+  </table>
+
+  <h3>Switch Configuration — SW1</h3>
   <div class="card">
-    <h4>Network Components</h4>
-    <p>Router (Raspberry Pi / OpenWRT) configured as Router-on-a-Stick · 4 Layer-2 switches · Trunk links and EtherChannel · Inter-VLAN routing · NAT toward Internet · Firewall rules · Controlled communication between services</p>
+    <h4>Trunk and EtherChannel</h4>
+    <p>Fa0/1 → Raspberry Pi (trunk, VLANs 10,20,30,40,50) · Fa0/2-3 → Core SW0 (PAgP Po1) · Fa0/4-5 → SW2 (LACP Po2)</p>
   </div>
+  <div class="card">
+    <h4>Port Security</h4>
+    <p>Enabled on access ports: sticky MAC learning, maximum 1 MAC per port, violation mode restrict (drops unauthorized traffic without disabling the port).</p>
+  </div>
+
+  <h3>Firewall Rules — OpenWrt</h3>
+  <table>
+    <tr><th>Rule</th><th>Action</th><th>Purpose</th></tr>
+    <tr><td>Allow-ICMP-limited</td><td>ACCEPT (limit 1/sec, burst 5)</td><td>Normal ping allowed</td></tr>
+    <tr><td>Block-ICMP-flood</td><td>DROP</td><td>Blocks ping flood attacks</td></tr>
+    <tr><td>Block-ICMP-WAN</td><td>DROP</td><td>Router invisible from internet</td></tr>
+    <tr><td>NAT Masquerade</td><td>ACCEPT LAN→WAN</td><td>All VLANs share university internet</td></tr>
+  </table>
 
   <h2>Running the System</h2>
   <pre><code># Clone the repository

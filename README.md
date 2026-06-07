@@ -84,3 +84,43 @@ docker-compose down
 
 - Los archivos sensibles (`.env`, `credentials.json`, tokens OAuth, base de datos) están excluidos del control de versiones mediante `.gitignore`.
 - Las contraseñas de usuarios se almacenan utilizando `bcrypt` con un secreto adicional (pepper) cargado por variable de entorno.
+
+## Network Infrastructure
+
+Both services are deployed on **VLAN 10 (Microservices)** — `192.168.0.128/27` — within the organizational network infrastructure.
+
+### Network Architecture
+
+- **Router**: Raspberry Pi 3 Model B running OpenWrt 24.10.0 (Router-on-a-Stick)
+- **Switches**: SW1 with trunk links, EtherChannel (PAgP Po1, LACP Po2), and Port Security
+- **WAN**: WiFi uplink to university network (DHCP) via `phy0-sta0`
+- **Services accessible at**: `http://192.168.0.130:8000` (auth) and `http://192.168.0.130:8080` (mail)
+
+### VLAN Segmentation — VLSM Plan (192.168.0.0/16)
+
+| VLAN | Name | Subnet | Gateway | Hosts |
+|------|------|--------|---------|-------|
+| VLAN 10 | Microservices | 192.168.0.128/27 | 192.168.0.129 | 30 |
+| VLAN 20 | Streaming | 192.168.0.64/26 | 192.168.0.65 | 62 |
+| VLAN 30 | Mail Server | 192.168.0.0/26 | 192.168.0.1 | 62 |
+| VLAN 40 | Counter Strike | 192.168.0.160/27 | 192.168.0.161 | 30 |
+| VLAN 50 | Users | 192.168.0.192/27 | 192.168.0.193 | 30 |
+
+### Raspberry Pi Subinterfaces
+
+| Interface | VLAN | IP | Description |
+|-----------|------|----|-------------|
+| eth0.10 | VLAN 10 | 192.168.0.129/27 | Microservices — Docker containers |
+| eth0.20 | VLAN 20 | 192.168.0.65/26 | Streaming Server |
+| eth0.30 | VLAN 30 | 192.168.0.1/26 | Mail Server |
+| eth0.40 | VLAN 40 | 192.168.0.161/27 | Counter Strike Server |
+| eth0.50 | VLAN 50 | 192.168.0.193/27 | User clients |
+| phy0-sta0 | WAN | DHCP | University WiFi uplink |
+
+### Network Features
+
+- Inter-VLAN routing via Router-on-a-Stick (OpenWrt)
+- NAT Masquerade enabled on WAN zone
+- Firewall: ICMP rate limiting (1 pkt/sec), ICMP flood protection, WAN ping blocked
+- Port Security on SW1: sticky MAC, max 1 MAC per port, violation restrict
+- EtherChannel: PAgP (Po1 toward core) and LACP (Po2 toward SW2)
